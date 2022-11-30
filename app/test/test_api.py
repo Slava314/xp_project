@@ -43,23 +43,13 @@ class IntegrationTests(unittest.TestCase):
 
     @patch.dict(db, copy.deepcopy(test_db), clear=True)
     def test_get_tasks(self):
-        self.client.post(
-            "/users/sign_up",
-            json={
-                "login": self.test_user.login,
-                "password": self.test_user.password,
-            },
-        )
-        response = self.client.post(
-            "/users/courses/add/1",
-            json={
-                "login": self.test_user.login,
-                "password": self.test_user.password,
+        response = self.client.get(
+            "/user/list/tasks",
+            params={
+                "login": "test_user",
+                "list_name": "test user list"
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"course_name": "Python web"})
-    #
-    # @patch.dict(db, copy.deepcopy(test_db), clear=True)
-    # def test_add_task(self):
-    #     pass
+        self.assertEqual(response.json(), {
+            'tasks': [{'deadline': 1, 'name': 'test user task', 'status': 'help'}]})
