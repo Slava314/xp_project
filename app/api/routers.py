@@ -19,33 +19,39 @@ def add_user(login: str, password: str):
     return {'user': db.add_user(login, password)}
 
 
-# @router.post("/user/list/add")
-# def read_root(user_login: str, list_name: str):
-#     """Description."""
-#     pass
+@router.post("/user/list/add")
+def read_root(user_login: str, list_name: str):
+    """Description."""
+    return {'list': db.add_list(user_login, list_name)}
 
 
-@router.get("/user/tasks")
-def get_tasks(login: str):
+@router.get("/user/lists")
+def get_lists(login: str):
     """Description."""
     try:
-        tasks = db.get_tasks(login)
+        lists = db.get_all_lists(login)
+    except Exception as error:
+        return {'error': str(error)}
+    return {'lists': lists}
+
+
+@router.get("/user/list/tasks")
+def get_list_tasks(login: str, list_name: str):
+    """Description."""
+    try:
+        tasks = db.get_list_tasks(login, list_name)
     except Exception as error:
         return {'error': str(error)}
     return {'tasks': tasks}
 
 
-# @router.get("/user/lists")
-# def read_root(user_login: str):
-#     """Description."""
-#     pass
-
-
-@router.post("/user/task/add")
-def add_task(login: str, task_name: str, task_status: str, task_deadline: int):
+@router.post("/user/list/task/add")
+def add_task(login: str, list_name: str, task_name: str, task_status: str,
+             task_deadline: int):
     """Description."""
     try:
-        task = db.add_task(login, task_name, task_status, task_deadline)
+        task = db.add_task_to_list(login, list_name, task_name, task_status,
+                                   task_deadline)
     except Exception as error:
         return {'error': str(error)}
     return task

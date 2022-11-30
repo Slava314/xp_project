@@ -10,10 +10,14 @@ class Task(BaseModel):
     status: str
     deadline: int
 
+class TaskList(BaseModel):
+    """Task class."""
+
+    name: str
+    tasks: List[Task]
 
 class User(BaseModel):
     """User class."""
 
     login: str
     password: str
-    tasks: List[Task]
