@@ -75,8 +75,8 @@ async function addList(listName: string) {
     if (login === null) {
       login = "";
     }
-    const { data } = await axios.get(
-      `http://0.0.0.0:8000/user/list/add?login=${login}&list_name=${listName}`,
+    const { data } = await axios.post(
+      `http://0.0.0.0:8000/user/list/add?user_login=${login}&list_name=${listName}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -153,9 +153,10 @@ export default function Home() {
   }
 
   function updateTasks(listName: string, newTask: TaskInterface) {
+    console.log(lists);
     const newLists = lists.map((obj) => {
       if (obj.name === listName) {
-        return { ...obj, tasks: { ...obj.tasks, newTask } };
+        return { ...obj, tasks: [...obj.tasks, newTask] };
       }
       return obj;
     });
@@ -184,6 +185,10 @@ export default function Home() {
         status,
         deadline.valueOf()
       );
+      if (newTodo.error === "No such list") {
+        let newList = await addList(listName);
+        setLists([...lists, newList.data]);
+      }
       if (newTodo.error === "No such user") {
         alert("Please register before creating tasks");
         return;
@@ -195,6 +200,7 @@ export default function Home() {
         return;
       }
       updateTasks(listName, newTodo);
+      console.log(lists);
       setListName("");
       setName("");
       setStatus("");
