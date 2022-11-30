@@ -8,15 +8,21 @@ type TaskInterface = {
   deadline: number;
 };
 
-async function assignTaskToUser(
+type ListInterface = {
+  name: string;
+  tasks: TaskInterface[];
+};
+
+async function assignTaskToList(
   login: string,
+  listName: string,
   name: string,
   status: string,
   deadline: number
 ) {
   try {
     const { data } = await axios.post(
-      `http://localhost:8000/user/task/add?login=${login}&task_name=${name}&task_status=${status}&task_deadline=${deadline}`,
+      `http://localhost:8000/user/list/task/add?login=${login}&list_name=${listName}&task_name=${name}&task_status=${status}&task_deadline=${deadline}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -36,14 +42,68 @@ async function assignTaskToUser(
   }
 }
 
-async function getTasks() {
+async function getListTasks(listName: string) {
   try {
     let login = localStorage.getItem("login");
     if (login === null) {
       login = "";
     }
     const { data } = await axios.get(
-      `http://0.0.0.0:8000/user/tasks?login=${login}`,
+      `http://0.0.0.0:8000/user/list/tasks?login=${login}&list_name=${listName}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.log("error message: ", error.message);
+      return error;
+    } else {
+      console.log("unexpected error: ", error);
+      return error;
+    }
+  }
+}
+
+async function addList(listName: string) {
+  try {
+    let login = localStorage.getItem("login");
+    if (login === null) {
+      login = "";
+    }
+    const { data } = await axios.get(
+      `http://0.0.0.0:8000/user/list/add?login=${login}&list_name=${listName}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.log("error message: ", error.message);
+      return error;
+    } else {
+      console.log("unexpected error: ", error);
+      return error;
+    }
+  }
+}
+
+async function getUserLists() {
+  try {
+    let login = localStorage.getItem("login");
+    if (login === null) {
+      login = "";
+    }
+    const { data } = await axios.get(
+      `http://0.0.0.0:8000/user/lists?login=${login}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -64,46 +124,78 @@ async function getTasks() {
 }
 
 export default function Home() {
-  const [todos, setTodos] = useState<TaskInterface[]>([]);
+  const [lists, setLists] = useState<ListInterface[]>([]);
+  const [listName, setListName] = useState("");
   const [name, setName] = useState("");
   const [status, setStatus] = useState("");
   const [deadlineStr, setDeadlineStr] = useState("");
 
-  async function fetchTasks() {
-    let res = await getTasks();
+  // async function fetchTasks() {
+  //   let res = await getTasks();
+  //   if (res.response?.status === 422) {
+  //     alert(
+  //       "Bad request.\nName and status must be text\nDeadline is a date in format YYYY-MM-DD"
+  //     );
+  //     return;
+  //   }
+  //   let tasks = res.tasks;
+  //   setTodos(tasks);
+  // }
+
+  async function fetchLists() {
+    let res = await getUserLists();
     if (res.response?.status === 422) {
-      alert(
-        "Bad request. Name and status must be text and deadline is a number"
-      );
+      alert("Oops... Something went wrong");
       return;
     }
-    let tasks = res.tasks;
-    setTodos(tasks);
+    let lists = res.lists;
+    setLists(lists);
+  }
+
+  function updateTasks(listName: string, newTask: TaskInterface) {
+    const newLists = lists.map((obj) => {
+      if (obj.name === listName) {
+        return { ...obj, tasks: { ...obj.tasks, newTask } };
+      }
+      return obj;
+    });
+    setLists(newLists);
   }
 
   useEffect(() => {
-    fetchTasks();
+    fetchLists();
   }, []);
 
   const addTodo = async () => {
-    if (name !== "" && status !== "" && deadlineStr !== "") {
-      let deadline = parseInt(deadlineStr);
+    if (name !== "" && status !== "" && deadlineStr !== "" && listName !== "") {
+      let deadline = new Date(deadlineStr);
+      if (isNaN(deadline.valueOf())) {
+        alert("Please provide valid deadline date in format YYYY-MM-DD");
+        return;
+      }
       let login = localStorage.getItem("login");
       if (login === null) {
         login = "";
       }
-      let newTodo = await assignTaskToUser(login, name, status, deadline);
+      let newTodo = await assignTaskToList(
+        login,
+        listName,
+        name,
+        status,
+        deadline.valueOf()
+      );
       if (newTodo.error === "No such user") {
         alert("Please register before creating tasks");
         return;
       }
       if (newTodo.response?.status === 422) {
         alert(
-          "Bad request. Name and status must be text and deadline is a number"
+          "Bad request.\nName and status must be text\nDeadline is a date in format YYYY-MM-DD"
         );
         return;
       }
-      setTodos([...todos, newTodo]);
+      updateTasks(listName, newTodo);
+      setListName("");
       setName("");
       setStatus("");
       setDeadlineStr("");
@@ -114,6 +206,16 @@ export default function Home() {
     <div className={styles.body}>
       <h1 className={styles.header}>Список задач</h1>
       <div className={styles.addTask}>
+        <input
+          className={styles.addInput}
+          type="text"
+          placeholder="Название листа"
+          name="list"
+          value={listName}
+          onChange={(e) => {
+            setListName(e.target.value);
+          }}
+        />
         <input
           className={styles.addInput}
           type="text"
@@ -149,18 +251,23 @@ export default function Home() {
         </button>
       </div>
       <div className={styles.separator} />
-      {todos?.length > 0 ? (
-        <ul className={styles.todoList}>
-          {todos.map((todo, index) => (
-            <li className={styles.todo} key={index}>
-              <h1>{todo.name}</h1>
-              <div className={styles.todoParams}>
-                <p>Статус: {todo.status}</p>
-                <p>Дедлайн: {todo.deadline}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+      {lists?.length > 0 ? (
+        lists.map((list, index) => (
+          <div>
+            <h1>{list.name}</h1>
+            <ul className={styles.todoList}>
+              {list.tasks.map((task, index) => (
+                <li className={styles.todo} key={index}>
+                  <h1>{task.name}</h1>
+                  <div className={styles.todoParams}>
+                    <p>Статус: {task.status}</p>
+                    <p>Дедлайн: {new Date(task.deadline).toDateString()}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
       ) : (
         <div className={styles.empty}>
           <p>Пока задач нет</p>
