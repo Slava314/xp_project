@@ -133,7 +133,7 @@ export default function Home() {
   async function fetchLists() {
     let res = await getUserLists();
     if (res.response?.status === 422) {
-      alert("Oops... Something went wrong");
+      alert("Упс... Что-то пошло не так");
       return;
     }
     let lists = res.lists;
@@ -157,25 +157,25 @@ export default function Home() {
 
   const addTodo = async () => {
     if (name === "") {
-      alert("Please specify the name of the task");
+      alert("Укажите название задачи");
       return;
     }
     if (status === "") {
-      alert("Please specify the status of the task");
+      alert("Укажите статус задачи");
       return;
     }
     if (deadlineStr === "") {
-      alert("Please specify the deadline of the task");
+      alert("Укажите дедлайн задачи");
       return;
     }
     if (listName === "") {
-      alert("Please specify the name of the list");
+      alert("Укажите список, в котором находится задача");
       return;
     }
 
     let deadline = new Date(deadlineStr);
     if (isNaN(deadline.valueOf())) {
-      alert("Please provide valid deadline date in format YYYY-MM-DD");
+      alert("Укажите дату в формате ГГГГ-ММ-ДД");
       return;
     }
     let login = localStorage.getItem("login");
@@ -200,7 +200,7 @@ export default function Home() {
       );
     }
     if (newTodo.error === "No such user") {
-      alert("Please register before creating tasks");
+      alert("Зарегистрируйтесь перед тем, как создавать задачи");
       return;
     }
     if (newTodo.response?.status === 422) {
