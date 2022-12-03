@@ -269,28 +269,30 @@ export default function Home() {
         </button>
       </div>
       <div className={styles.separator} />
-      {lists?.length > 0 ? (
-        lists.map((list, index) => (
-          <div className={styles.list} key={index}>
-            <h1 className={styles.listName}>{list.name}</h1>
-            <ul className={styles.todoList}>
-              {list.tasks.map((task, index) => (
-                <li className={styles.todo} key={index}>
-                  <h1>{task.name}</h1>
-                  <div className={styles.todoParams}>
-                    <p>Статус: {task.status}</p>
-                    <p>Дедлайн: {new Date(task.deadline).toDateString()}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+      <div className={styles.lists}>
+        {lists?.length > 0 ? (
+          lists.map((list, index) => (
+            <div className={styles.list} key={index}>
+              <h1 className={styles.listName}>{list.name}</h1>
+              <ul className={styles.todoList}>
+                {list.tasks.map((task, index) => (
+                  <li className={styles.todo} key={index}>
+                    <h1>{task.name}</h1>
+                    <div className={styles.todoParams}>
+                      <p>Статус: {task.status}</p>
+                      <p>Дедлайн: {new Date(task.deadline).toDateString()}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : (
+          <div className={styles.empty}>
+            <p>Пока задач нет</p>
           </div>
-        ))
-      ) : (
-        <div className={styles.empty}>
-          <p>Пока задач нет</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

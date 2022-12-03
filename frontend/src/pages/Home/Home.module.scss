@@ -42,7 +42,13 @@
     margin: 10px;
 }
 
+.lists {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
 .list {
+    height: fit-content;
     border: 1px solid black;
     padding: 5px;
     margin: 5px;
@@ -98,6 +104,10 @@
 }
 
 .empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     p {
         font-size: 25px;
         font-weight: 300;
