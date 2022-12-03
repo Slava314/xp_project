@@ -240,7 +240,7 @@ export default function Home() {
         />
         <input
           className={styles.addInput}
-          type="text"
+          type="date"
           placeholder="Дедлайн"
           name="deadline"
           value={deadlineStr}
