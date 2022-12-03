@@ -20,7 +20,7 @@ def add_user(login: str, password: str):
 
 
 @router.post("/user/list/add")
-def read_root(user_login: str, list_name: str):
+def add_list(user_login: str, list_name: str):
     """Description."""
     return {'list': db.add_list(user_login, list_name)}
 
