@@ -127,7 +127,7 @@ export default function Home() {
   const [lists, setLists] = useState<ListInterface[]>([]);
   const [listName, setListName] = useState("");
   const [name, setName] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("Open");
   const [deadlineStr, setDeadlineStr] = useState("");
 
   async function fetchLists() {
@@ -156,52 +156,65 @@ export default function Home() {
   }, []);
 
   const addTodo = async () => {
-    if (name !== "" && status !== "" && deadlineStr !== "" && listName !== "") {
-      let deadline = new Date(deadlineStr);
-      if (isNaN(deadline.valueOf())) {
-        alert("Please provide valid deadline date in format YYYY-MM-DD");
-        return;
-      }
-      let login = localStorage.getItem("login");
-      if (login === null) {
-        login = "";
-      }
-      let newTodo = await assignTaskToList(
+    if (name === "") {
+      alert("Please specify the name of the task");
+      return;
+    }
+    if (status === "") {
+      alert("Please specify the status of the task");
+      return;
+    }
+    if (deadlineStr === "") {
+      alert("Please specify the deadline of the task");
+      return;
+    }
+    if (listName === "") {
+      alert("Please specify the name of the list");
+      return;
+    }
+
+    let deadline = new Date(deadlineStr);
+    if (isNaN(deadline.valueOf())) {
+      alert("Please provide valid deadline date in format YYYY-MM-DD");
+      return;
+    }
+    let login = localStorage.getItem("login");
+    if (login === null) {
+      login = "";
+    }
+    let newTodo = await assignTaskToList(
+      login,
+      listName,
+      name,
+      status,
+      deadline.valueOf()
+    );
+    if (newTodo.error === "No such list") {
+      await addList(listName);
+      newTodo = await assignTaskToList(
         login,
         listName,
         name,
         status,
         deadline.valueOf()
       );
-      if (newTodo.error === "No such list") {
-        await addList(listName);
-        newTodo = await assignTaskToList(
-          login,
-          listName,
-          name,
-          status,
-          deadline.valueOf()
-        );
-      }
-      if (newTodo.error === "No such user") {
-        alert("Please register before creating tasks");
-        return;
-      }
-      if (newTodo.response?.status === 422) {
-        alert(
-          "Bad request.\nName and status must be text\nDeadline is a date in format YYYY-MM-DD"
-        );
-        return;
-      }
-      console.log(newTodo);
-      await fetchLists();
-      console.log(lists);
-      await updateTasks(listName, newTodo);
-      setListName("");
-      setName("");
-      setStatus("");
-      setDeadlineStr("");
     }
+    if (newTodo.error === "No such user") {
+      alert("Please register before creating tasks");
+      return;
+    }
+    if (newTodo.response?.status === 422) {
+      alert(
+        "Bad request.\nName and status must be text\nDeadline is a date in format YYYY-MM-DD"
+      );
+      return;
+    }
+    await fetchLists();
+    await updateTasks(listName, newTodo);
+    setListName("");
+    setName("");
+    setStatus("");
+    setDeadlineStr("");
   };
 
   return (
@@ -228,16 +241,19 @@ export default function Home() {
             setName(e.target.value);
           }}
         />
-        <input
-          className={styles.addInput}
-          type="text"
+        <select
+          className={styles.addSelect}
           placeholder="Статус"
           name="status"
-          value={status}
           onChange={(e) => {
             setStatus(e.target.value);
           }}
-        />
+          defaultValue="Open"
+        >
+          <option disabled>Статус</option>
+          <option value="Open">Open</option>
+          <option value="In progress">In progress</option>
+        </select>
         <input
           className={styles.addInput}
           type="date"
