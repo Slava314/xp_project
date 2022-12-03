@@ -22,11 +22,11 @@
 
 ## Оглавление
 
-- [Требования]()
-- [Как это выглядит]()
-- [Frontend]()
-- [Backend]()
-- [Как запустить проект]()
+- [Требования](https://github.com/Slava314/xp_project#%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F)
+- [Как это выглядит](https://github.com/Slava314/xp_project#%D0%BA%D0%B0%D0%BA-%D1%8D%D1%82%D0%BE-%D0%B2%D1%8B%D0%B3%D0%BB%D1%8F%D0%B4%D0%B8%D1%82)
+- [Frontend](https://github.com/Slava314/xp_project#frontend)
+- [Backend](https://github.com/Slava314/xp_project#backend)
+- [Как запустить проект](https://github.com/Slava314/xp_project#%D0%BA%D0%B0%D0%BA-%D0%B7%D0%B0%D0%BF%D1%83%D1%81%D1%82%D0%B8%D1%82%D1%8C-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82)
 
 ## Требования
 
@@ -39,11 +39,11 @@
 
 ### Главный экран
 
-![главный экран]()
+![главный экран](https://github.com/Slava314/xp_project/blob/main/readme_images/home_page.png)
 
 ### Экран регистрации
 
-![Экран регистрации]()
+![Экран регистрации](https://github.com/Slava314/xp_project/blob/main/readme_images/register_page.png)
 
 ## Frontend
 
@@ -78,8 +78,8 @@
 
 ```json
 {
-    login: str,
-    password: str
+  "login": "str",
+  "password": "str"
 }
 ```
 
@@ -95,8 +95,8 @@
 
 ```json
 {
-    user_name: str,
-    list_name: str
+  "user_name": "str",
+  "list_name": "str"
 }
 ```
 
@@ -112,8 +112,8 @@
 
 ```json
 {
-    login: str,
-    list_name: str
+  "login": "str",
+  "list_name": "str"
 }
 ```
 
@@ -129,11 +129,11 @@
 
 ```json
 {
-   login: str,
-   list_name: str,
-   task_name: str,
-   task_status: "Open" | "In progress",
-   task_deadline: Date
+  "login": "str",
+  "list_name": "str",
+  "task_name": "str",
+  "task_status": "Open | In progress",
+  "task_deadline": "Date"
 }
 ```
 
