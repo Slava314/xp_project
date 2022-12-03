@@ -130,18 +130,6 @@ export default function Home() {
   const [status, setStatus] = useState("");
   const [deadlineStr, setDeadlineStr] = useState("");
 
-  // async function fetchTasks() {
-  //   let res = await getTasks();
-  //   if (res.response?.status === 422) {
-  //     alert(
-  //       "Bad request.\nName and status must be text\nDeadline is a date in format YYYY-MM-DD"
-  //     );
-  //     return;
-  //   }
-  //   let tasks = res.tasks;
-  //   setTodos(tasks);
-  // }
-
   async function fetchLists() {
     let res = await getUserLists();
     if (res.response?.status === 422) {
@@ -152,9 +140,9 @@ export default function Home() {
     setLists(lists);
   }
 
-  function updateTasks(listName: string, newTask: TaskInterface) {
-    console.log(lists);
-    const newLists = lists.map((obj) => {
+  async function updateTasks(listName: string, newTask: TaskInterface) {
+    await fetchLists();
+    let newLists = lists.map((obj) => {
       if (obj.name === listName) {
         return { ...obj, tasks: [...obj.tasks, newTask] };
       }
@@ -186,8 +174,14 @@ export default function Home() {
         deadline.valueOf()
       );
       if (newTodo.error === "No such list") {
-        let newList = await addList(listName);
-        setLists([...lists, newList.data]);
+        await addList(listName);
+        newTodo = await assignTaskToList(
+          login,
+          listName,
+          name,
+          status,
+          deadline.valueOf()
+        );
       }
       if (newTodo.error === "No such user") {
         alert("Please register before creating tasks");
@@ -199,8 +193,10 @@ export default function Home() {
         );
         return;
       }
-      updateTasks(listName, newTodo);
+      console.log(newTodo);
+      await fetchLists();
       console.log(lists);
+      await updateTasks(listName, newTodo);
       setListName("");
       setName("");
       setStatus("");
@@ -259,8 +255,8 @@ export default function Home() {
       <div className={styles.separator} />
       {lists?.length > 0 ? (
         lists.map((list, index) => (
-          <div>
-            <h1>{list.name}</h1>
+          <div className={styles.list} key={index}>
+            <h1 className={styles.listName}>{list.name}</h1>
             <ul className={styles.todoList}>
               {list.tasks.map((task, index) => (
                 <li className={styles.todo} key={index}>
